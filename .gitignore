@@ -1,0 +1,13 @@
+# Track only the selected project files at the repository root.
+/*
+!/.gitignore
+!/my_README.md
+!/Assets/
+
+# Track custom assets and their Unity metadata.
+/Assets/*
+!/Assets/_Matsu/
+!/Assets/_Matsu.meta
+
+# Ignore macOS metadata anywhere in the tracked directories.
+.DS_Store
