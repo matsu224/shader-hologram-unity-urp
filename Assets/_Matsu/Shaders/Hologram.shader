@@ -19,6 +19,9 @@ Shader "Matsu/Hologram"
         [Header(Fresnel)]
         _FresnelPower("Fresnel Power", Range(0.5, 8.0)) = 4.0
         _FresnelStrength("Fresnel Strength", Range(0.0, 5.0)) = 5.0
+        [Header(Flicker)]
+        _FlickerFrequency("Flicker Frequency (Hz)", Range(0.0, 100.0)) = 20.0
+        _FlickerStrength("Flicker Strength", Range(0.0, 0.5)) = 0.05
         [Header(Vertex Glitch)]
         _GlitchBandHeight("Glitch Band Height", Range(0.001, 2.0)) = 0.05
         _GlitchInterval("Glitch Interval (Seconds)", Range(0.01, 10.0)) = 2.0
@@ -74,6 +77,8 @@ Shader "Matsu/Hologram"
             float _ScanBaseWidth2;
             float _FresnelPower;
             float _FresnelStrength;
+            float _FlickerFrequency;
+            float _FlickerStrength;
             float _GlitchBandHeight;
             float _GlitchInterval;
             float _GlitchDuration;
@@ -163,6 +168,8 @@ Shader "Matsu/Hologram"
             float _ScanBaseWidth2;
             float _FresnelPower;
             float _FresnelStrength;
+            float _FlickerFrequency;
+            float _FlickerStrength;
             float _GlitchBandHeight;
             float _GlitchInterval;
             float _GlitchDuration;
@@ -233,8 +240,12 @@ Shader "Matsu/Hologram"
                 //finalColor.rgb += fresnel; //これだと輪郭が真っ白になってしまう
                 finalColor.rgb += finalColor.rgb * fresnel * _FresnelStrength; //元の色合いを保ちながら明るくする //※AIに相談
 
+                //全体の明滅
+                finalColor.rgb *= 1.0 + sin(_Time.y * _FlickerFrequency * 2 * 3.14) * _FlickerStrength;
+
                 //透明度設定
-                finalColor.a = _Alpha;
+                finalColor.a *= _Alpha;
+                finalColor.a = saturate(finalColor.a + finalColor.a * fresnel * _FresnelStrength);
 
                 return finalColor;
             }
@@ -244,4 +255,4 @@ Shader "Matsu/Hologram"
 }
 
 //関数はwebやAIを使って調査&使用した（コメントで説明がついている組み込み関数など）
-//その他実装方法のアイデアなどは適宜webサイトなどを参考にした
+//その他実装方法のアイデアなどは適宜webサイトなどを参考にした（my_READMEに記述）
