@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Hologram
+  m_Name: M_Hologram_Woman
   m_Shader: {fileID: 4800000, guid: a5a2779fda2254ec1b3dfebce8d8d107, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -31,7 +31,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 0.7
-    - _DiffuseIntens: 0.1
+    - _DiffuseIntens: 0
     - _FresnelPower: 4
     - _FresnelStrength: 5
     - _GlitchBandHeight: 0.05
@@ -44,7 +44,7 @@ Material:
     - _ScanBaseWidth2: 0.1
     - _ScanBrightness: 0.9
     - _ScanBrightness2: 1.1
-    - _ScanColorWidth: 0.02
+    - _ScanColorWidth: 0.01
     - _ScanColorWidth2: 0.1
     - _ScanSpeed: 0.1
     - _ScanSpeed2: 0.6
