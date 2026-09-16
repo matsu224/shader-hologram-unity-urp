@@ -31,6 +31,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 0.7
+    - _ColorShiftStrength: 0.025
+    - _ColorShiftThreshold: 0.7
+    - _ColorShiftUpdateRate: 8
     - _DiffuseIntens: 0.1
     - _FlickerFrequency: 20
     - _FlickerStrength: 0.05
@@ -50,7 +53,7 @@ Material:
     - _ScanBeamWidth: 0.01
     - _ScanBrightness: 0.9
     - _ScanBrightness2: 1.1
-    - _ScanColorWidth: 0.02
+    - _ScanColorWidth: 0.01
     - _ScanColorWidth2: 0.1
     - _ScanSpeed: 0.1
     - _ScanSpeed2: 0.6
