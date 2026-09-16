@@ -1,7 +1,7 @@
 # Track only the selected project files at the repository root.
 /*
 !/.gitignore
-!/my_README.md
+!/README.md
 !/Assets/
 
 # Track custom assets and their Unity metadata.
