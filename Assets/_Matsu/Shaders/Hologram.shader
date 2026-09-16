@@ -119,11 +119,9 @@ Shader "Matsu/Hologram"
                 float tick = floor(_Time.y * _GlitchUpdateRate);
                 float shake = random2(float2(band, tick)).y * 2.0 - 1.0;
                 float offset = shake * _GlitchStrength * active * selected;
-                //OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 //OUT.positionHCS.x += offset * OUT.positionHCS.w;
-                float3 positionOS = IN.positionOS.xyz;
-                positionOS.x += offset;
-                OUT.positionHCS = TransformObjectToHClip(positionOS);
+                OUT.positionHCS.x += offset;
 
                 return OUT;
             }
@@ -224,14 +222,11 @@ Shader "Matsu/Hologram"
                 float tick = floor(_Time.y * _GlitchUpdateRate);
                 float shake = random2(float2(band, tick)).y * 2.0 - 1.0; //-1~1の範囲のノイズを加える
                 float offset = shake * _GlitchStrength * active * selected;
-                //OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                //OUT.positionHCS.x += offset * OUT.positionHCS.w; //wを掛けて透視除算後のずれ幅を一定にする //※AIに相談
-                float3 positionOS = IN.positionOS.xyz; //「HCSに足しているのでカメラを傾けた時の挙動は課題」と発表時に指摘を受けたため以下3行に修正 //※AIに相談
-                positionOS.x += offset;
-                OUT.positionHCS = TransformObjectToHClip(positionOS);
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                //OUT.positionHCS.x += offset * OUT.positionHCS.w; //wを掛けると透視除算後のずれ幅が一定になる //※AIに相談
+                OUT.positionHCS.x += offset; //HCS上で画面横方向に変位。カメラロール時は方向が画面に追従するが、本作ではロール操作がないため採用 //※AIに相談
 
-                //OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-                OUT.positionWS = TransformObjectToWorld(positionOS);
+                OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
                 return OUT;
