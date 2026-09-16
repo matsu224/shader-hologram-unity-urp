@@ -10,22 +10,31 @@ Shader "Matsu/Hologram"
         [Header(Scan Line)]
         _ScanBrightness("Scan Brightness", Range(0, 2.0)) = 0.9
         _ScanSpeed("Scan Speed", Float) = 0.1
-        _ScanColorWidth("Scan Color Width", Range(0.001, 2.0)) = 0.02
+        _ScanColorWidth("Scan Color Width", Range(0.001, 2.0)) = 0.01
         _ScanBaseWidth("Scan Base Width", Range(0.001, 2.0)) = 0.02
         _ScanBrightness2("Scan Brightness 2", Range(0, 2.0)) = 1.1
         _ScanSpeed2("Scan Speed 2", Float) = 0.6
         _ScanColorWidth2("Scan Color Width 2", Range(0.001, 2.0)) = 0.1
         _ScanBaseWidth2("Scan Base Width 2", Range(0.001, 2.0)) = 0.1
+        [Header(Scan Beam)]
+        _ScanBeamBrightness("Scan Beam Brightness", Range(0, 3.0)) = 2.0
+        _ScanBeamSpeed("Scan Beam Speed", Float) = 0.5
+        _ScanBeamWidth("Scan Beam Width", Range(0.001, 2.0)) = 0.01
+        _ScanBeamInterval("Scan Beam Interval", Range(0.01, 20.0)) = 5.0
         [Header(Fresnel)]
         _FresnelPower("Fresnel Power", Range(0.5, 8.0)) = 4.0
         _FresnelStrength("Fresnel Strength", Range(0.0, 5.0)) = 5.0
         [Header(Flicker)]
         _FlickerFrequency("Flicker Frequency (Hz)", Range(0.0, 100.0)) = 20.0
         _FlickerStrength("Flicker Strength", Range(0.0, 0.5)) = 0.05
+        [Header(Color Shift)]
+        _ColorShiftStrength("Color Shift Strength", Range(0.0, 0.5)) = 0.025
+        _ColorShiftUpdateRate("Color Shift Updates Per Second", Range(1.0, 60.0)) = 8.0
+        _ColorShiftThreshold("Color Shift Threshold", Range(0.0, 1.0)) = 0.7
         [Header(Vertex Glitch)]
         _GlitchBandHeight("Glitch Band Height", Range(0.001, 2.0)) = 0.05
-        _GlitchInterval("Glitch Interval (Seconds)", Range(0.01, 10.0)) = 2.0
-        _GlitchDuration("Glitch Duration (Seconds)", Range(0.0, 1.0)) = 0.2
+        _GlitchInterval("Glitch Interval", Range(0.01, 10.0)) = 2.0
+        _GlitchDuration("Glitch Duration", Range(0.0, 1.0)) = 0.2
         _GlitchStrength("Glitch Strength", Range(0.0, 0.1)) = 0.02 //大きくしすぎると三角形が引き伸ばされて不自然になる？ため小さい値を推奨（微小な揺れ程度）
         _GlitchUpdateRate("Glitch Updates Per Second", Range(1, 60)) = 10
         _GlitchThreshold("Glitch Band Threshold", Range(0, 1)) = 0.9
@@ -75,10 +84,17 @@ Shader "Matsu/Hologram"
             float _ScanSpeed2;
             float _ScanColorWidth2;
             float _ScanBaseWidth2;
+            float _ScanBeamBrightness;
+            float _ScanBeamSpeed;
+            float _ScanBeamWidth;
+            float _ScanBeamInterval;
             float _FresnelPower;
             float _FresnelStrength;
             float _FlickerFrequency;
             float _FlickerStrength;
+            float _ColorShiftStrength;
+            float _ColorShiftUpdateRate;
+            float _ColorShiftThreshold;
             float _GlitchBandHeight;
             float _GlitchInterval;
             float _GlitchDuration;
@@ -103,8 +119,11 @@ Shader "Matsu/Hologram"
                 float tick = floor(_Time.y * _GlitchUpdateRate);
                 float shake = random2(float2(band, tick)).y * 2.0 - 1.0;
                 float offset = shake * _GlitchStrength * active * selected;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.positionHCS.x += offset * OUT.positionHCS.w;
+                //OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                //OUT.positionHCS.x += offset * OUT.positionHCS.w;
+                float3 positionOS = IN.positionOS.xyz;
+                positionOS.x += offset;
+                OUT.positionHCS = TransformObjectToHClip(positionOS);
 
                 return OUT;
             }
@@ -166,10 +185,17 @@ Shader "Matsu/Hologram"
             float _ScanSpeed2;
             float _ScanColorWidth2;
             float _ScanBaseWidth2;
+            float _ScanBeamBrightness;
+            float _ScanBeamSpeed;
+            float _ScanBeamWidth;
+            float _ScanBeamInterval;
             float _FresnelPower;
             float _FresnelStrength;
             float _FlickerFrequency;
             float _FlickerStrength;
+            float _ColorShiftStrength;
+            float _ColorShiftUpdateRate;
+            float _ColorShiftThreshold;
             float _GlitchBandHeight;
             float _GlitchInterval;
             float _GlitchDuration;
@@ -182,11 +208,15 @@ Shader "Matsu/Hologram"
                 return frac(sin(float2(dot(p,float2(127.1,311.7)),dot(p,float2(269.5,183.3))))*43758.5453);
             }
 
+            float random1( float p ) {
+                return frac(sin(p * 127.1) * 43758.5453);
+            }
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
 
-                //ノイズ(揺れ) //WebサイトやTreeDeformを参考に、詰まったところをAIに相談しつつ作成 //※AIに相談
+                //ノイズ(揺れ) //WebサイトやTreeDeformを参考に、詰まったところをAIに相談しつつ作成
                 float band = floor(IN.positionOS.y / _GlitchBandHeight); //帯の番号
                 float cycle = floor(_Time.y / _GlitchInterval); //現在が何周期目か
                 float active = 1.0 - step(_GlitchDuration, _Time.y - cycle * _GlitchInterval); //各周期の開始から指定した発生時間だけ有効 //実装をシンプルにするためノイズの発生は固定周期・秒数
@@ -194,10 +224,14 @@ Shader "Matsu/Hologram"
                 float tick = floor(_Time.y * _GlitchUpdateRate);
                 float shake = random2(float2(band, tick)).y * 2.0 - 1.0; //-1~1の範囲のノイズを加える
                 float offset = shake * _GlitchStrength * active * selected;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.positionHCS.x += offset * OUT.positionHCS.w; //wを掛けて透視除算後のずれ幅を一定にする必要がある //※AIに相談
+                //OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                //OUT.positionHCS.x += offset * OUT.positionHCS.w; //wを掛けて透視除算後のずれ幅を一定にする //※AIに相談
+                float3 positionOS = IN.positionOS.xyz; //「HCSに足しているのでカメラを傾けた時の挙動は課題」と発表時に指摘を受けたため以下3行に修正 //※AIに相談
+                positionOS.x += offset;
+                OUT.positionHCS = TransformObjectToHClip(positionOS);
 
-                OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+                //OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.positionWS = TransformObjectToWorld(positionOS);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
                 return OUT;
@@ -224,6 +258,13 @@ Shader "Matsu/Hologram"
                 float lineMask2 = step(colorRatio2, scanY_repeat2);
                 float brightness2 = lerp(_ScanBrightness2, 1.0, lineMask2);
                 finalColor.rgb *= brightness2;
+                //スキャンビーム（時々現れる強い明るさの線）
+                float beamPhase = frac((IN.positionWS.y - _Time.y * _ScanBeamSpeed) / (_ScanBeamWidth + _ScanBeamInterval));
+                float beamWidthRatio = _ScanBeamWidth / (_ScanBeamWidth + _ScanBeamInterval);
+                float beamMask = step(beamWidthRatio, beamPhase);
+                float beamBrightness = lerp(_ScanBeamBrightness, 1.0, beamMask);
+                finalColor.rgb *= beamBrightness;
+
 
                 float3 normal = normalize(IN.normalWS); //再度正規化する、vert->flagで補間されてしまっているため？
 
@@ -240,8 +281,18 @@ Shader "Matsu/Hologram"
                 //finalColor.rgb += fresnel; //これだと輪郭が真っ白になってしまう
                 finalColor.rgb += finalColor.rgb * fresnel * _FresnelStrength; //元の色合いを保ちながら明るくする //※AIに相談
 
-                //全体の明滅
+                //全体の明滅(規則的)
                 finalColor.rgb *= 1.0 + sin(_Time.y * _FlickerFrequency * 2 * 3.14) * _FlickerStrength;
+
+                //色変化(不規則的)
+                float tick = floor(_Time.y * _ColorShiftUpdateRate);
+                float randomShift = random1(tick) * 2.0 - 1.0;
+                float active_r = step(_ColorShiftThreshold, random1(tick + 1.0));
+                float active_g = step(_ColorShiftThreshold, random1(tick + 10.0));
+                float active_b = step(_ColorShiftThreshold, random1(tick + 100.0));
+                finalColor.r *= 1.0 + randomShift * active_r * _ColorShiftStrength;
+                finalColor.g *= 1.0 + randomShift * active_g * _ColorShiftStrength;
+                finalColor.b *= 1.0 + randomShift * active_b * _ColorShiftStrength;
 
                 //透明度設定
                 finalColor.a *= _Alpha;
@@ -254,5 +305,5 @@ Shader "Matsu/Hologram"
     }
 }
 
-//関数はwebやAIを使って調査&使用した（コメントで説明がついている組み込み関数など）
+//関数はwebやAIを使って調査&使用した
 //その他実装方法のアイデアなどは適宜webサイトなどを参考にした（my_READMEに記述）

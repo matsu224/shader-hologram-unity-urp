@@ -31,7 +31,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 0.7
-    - _DiffuseIntens: 0
+    - _DiffuseIntens: 0.1
+    - _FlickerFrequency: 20
+    - _FlickerStrength: 0.05
     - _FresnelPower: 4
     - _FresnelStrength: 5
     - _GlitchBandHeight: 0.05
@@ -42,14 +44,16 @@ Material:
     - _GlitchUpdateRate: 10
     - _ScanBaseWidth: 0.02
     - _ScanBaseWidth2: 0.1
+    - _ScanBeamBrightness: 2
+    - _ScanBeamInterval: 8
+    - _ScanBeamSpeed: 0.5
+    - _ScanBeamWidth: 0.01
     - _ScanBrightness: 0.9
     - _ScanBrightness2: 1.1
     - _ScanColorWidth: 0.01
     - _ScanColorWidth2: 0.1
     - _ScanSpeed: 0.1
     - _ScanSpeed2: 0.6
-    - _ScanWidth: 0.02
-    - _ScanWidth2: 0.1
     m_Colors:
     - _Color: {r: 0.24999997, g: 0.5, b: 0.5, a: 1}
   m_BuildTextureStacks: []
