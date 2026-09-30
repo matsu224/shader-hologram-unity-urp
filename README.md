@@ -18,7 +18,12 @@ World Space・視線方向・時間変化を利用した、パラメータ調整
 
 ## 完成したシェーダ
 
-**動画URL：** https://youtu.be/fkl-N8qOtZc
+### 動画
+
+- **完成映像：** https://youtu.be/fkl-N8qOtZc
+- **パラメータ調整映像：** https://youtu.be/tlYbPiIc_nk
+
+パラメータ調整映像では、色や透明度、スキャンライン、Fresnel効果、明滅、色変化、グリッチなどをマテリアルからリアルタイムに調整できる様子を紹介する。
 
 - シェーダー：
   - [Hologram.shader](Assets/_Matsu/Shaders/Hologram.shader)

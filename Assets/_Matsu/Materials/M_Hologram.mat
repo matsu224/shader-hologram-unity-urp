@@ -47,7 +47,7 @@ Material:
     - _GlitchUpdateRate: 10
     - _ScanBaseWidth: 0.02
     - _ScanBaseWidth2: 0.1
-    - _ScanBeamBrightness: 2
+    - _ScanBeamBrightness: 3
     - _ScanBeamInterval: 5
     - _ScanBeamSpeed: 0.5
     - _ScanBeamWidth: 0.01
